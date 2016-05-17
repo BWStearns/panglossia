@@ -32,7 +32,7 @@
     (fn []
       [re-com/input-text
        :change-on-blur? false
-       :model ""
+       :model @search-input
        :on-change #(re-frame/dispatch [:search-input-entered %])])))
 
 

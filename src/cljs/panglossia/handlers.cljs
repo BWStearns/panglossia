@@ -2,14 +2,10 @@
     (:require [re-frame.core :as re-frame]
               [panglossia.db :as db]))
 
-;; (re-frame/register-handler
-;;  :initialize-db
-;;  (fn  [_ _]
-;;    db/default-db))
 
 (re-frame/register-handler
   :initialize-db
-  (fn [db _]
+  (fn [db]
     (println "FOO")
     (assoc db :words [
                        {:word "Foo"
@@ -36,7 +32,9 @@
                         :synonyms [""]}
                        {:word "Pub"
                         :definitions ["A place where people drink booze. The content of the drink is not important. Frequently used by programmers"]
-                        :synonyms ["Pub"]}])))
+                        :synonyms ["Pub"]}]
+      :search-input "")))
+;;     (assoc db :search-input ""))
 
 (re-frame/register-handler
  :set-active-panel
