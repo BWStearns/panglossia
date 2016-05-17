@@ -1,23 +1,22 @@
 (ns panglossia.views
     (:require [re-frame.core :as re-frame]
               [re-com.core :as re-com]
-              [clojure.string :as str]))
+              [clojure.string :as string]))
 
 ;; definition components
 
 (defn matches-query?
   [search-input word]
-  (println (:word word))
+  (println search-input)
   (if (not search-input)
     true
-    (boolean (re-find (re-pattern search-input)
-                      (:word word)))))
+    (boolean (re-find (re-pattern (string/lower-case search-input))
+                      (string/lower-case (:word word))))))
 
 (defn word-component
   [word]
   [:li
-   [:span (:word word)]
-     [:ul (map (fn [d] [:li d]) (:definitions word))]])
+   [:span (:word word)]])
 
 (defn words-component []
   (let [all-words (re-frame/subscribe [:words])
@@ -31,8 +30,10 @@
   []
   (let [search-input (re-frame/subscribe [:search-input])]
     (fn []
-      [:input {:on-change #(re-frame/dispatch [:search-input-entered (-> % .-target .-value)])}])))
-
+      [re-com/input-text
+       :change-on-blur? false
+       :model ""
+       :on-change #(re-frame/dispatch [:search-input-entered %])])))
 
 
 ;; home
