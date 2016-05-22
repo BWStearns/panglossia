@@ -7,16 +7,22 @@
 
 (defn matches-query?
   [search-input word]
-  (println search-input)
+  (println "fuck" word)
   (if (not search-input)
     true
     (boolean (re-find (re-pattern (string/lower-case search-input))
                       (string/lower-case (:word word))))))
 
+(defn word-definition-body
+  [word]
+  (if (:show-definition word)
+    [:ul (map (fn [d] [:li d]) (:definitions word))]))
+
 (defn word-component
   [word]
   [:li
-   [:span (:word word)]])
+   [:span {:on-click #(re-frame/dispatch [:word-clicked (:word word)])} (:word word)]
+   [:div (word-definition-body word)]])
 
 (defn words-component []
   (let [all-words (re-frame/subscribe [:words])

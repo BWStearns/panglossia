@@ -22,4 +22,7 @@
   (fn [db]
     (reaction (:search-input @db))))
 
-
+(re-frame/register-sub
+ :words
+ (fn [db _]
+   (reaction (vals (:words @db)))))
