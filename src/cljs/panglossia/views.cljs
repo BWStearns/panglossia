@@ -4,6 +4,25 @@
               [reagent.core  :as reagent :refer [atom]]
               [clojure.string :as string]))
 
+;; links
+
+(defn link-to-home-page []
+  [re-com/hyperlink-href
+   :label "go to Home Page"
+   :href "#/"])
+
+(defn link-to-about-page []
+  [re-com/hyperlink-href
+   :label "go to About Page"
+   :href "#/about"])
+
+(defn link-to-word [word]
+  [re-com/hyperlink-href
+   :label word
+   :href (str "#/word/" (string/lower-case word))])
+
+
+
 ;; definition components
 
 (defn matches-query?
@@ -25,9 +44,7 @@
       [re-com/box
        :attr {:on-click #(swap! expanded? not)}
        :child [:div
-               [re-com/hyperlink-href
-                 :label word
-                 :href (str "#/word/" (string/lower-case word))]
+               [link-to-word word]
                (when @expanded?
                  [word-definition-body definitions])]])))
 
@@ -56,17 +73,6 @@
                 (for [word filtered-words]
                   ^{:key (:word word)} [word-component word])]]))
 
-;; links
-
-(defn link-to-home-page []
-  [re-com/hyperlink-href
-   :label "go to Home Page"
-   :href "#/"])
-
-(defn link-to-about-page []
-  [re-com/hyperlink-href
-   :label "go to About Page"
-   :href "#/about"])
 
 ;; home
 
@@ -94,22 +100,26 @@
 (defn wp-definitions
   [defs]
   [re-com/v-box
-   :children (mapv wp-definition defs)
-   :gap "10px"
-   :margin "0px 0px 0px 20px"])
-
-(defn wp-synonym
-  [syn-string]
-  [re-com/hyperlink-href
-   :label syn-string
-   :href (str "#/word/" (string/lower-case syn-string))])
+   :padding "10px"
+   :children [[re-com/title
+               :label "Definitions"
+               :level :level3]
+              [re-com/v-box
+               :children (mapv wp-definition defs)
+               :gap "10px"
+               :margin "0px 0px 0px 20px"]]])
 
 (defn wp-synonyms
   [synonyms]
-  [re-com/h-box
-   :children (mapv wp-synonym synonyms)
-   :gap "10px"
-   :margin "20px"])
+  [re-com/v-box
+   :padding "10px"
+   :children [[re-com/title
+               :label "Synonyms"
+               :level :level3]
+              [re-com/h-box
+               :children (mapv link-to-word synonyms)
+               :gap "10px"
+               :margin "20px"]]])
 
 (defn wp-body [word]
   (println word)
