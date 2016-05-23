@@ -1,46 +1,72 @@
 (ns panglossia.views
     (:require [re-frame.core :as re-frame]
               [re-com.core :as re-com]
+              [reagent.core  :as reagent :refer [atom]]
               [clojure.string :as string]))
 
 ;; definition components
 
 (defn matches-query?
   [search-input word]
-  (println "fuck" word)
   (if (not search-input)
     true
     (boolean (re-find (re-pattern (string/lower-case search-input))
                       (string/lower-case (:word word))))))
 
 (defn word-definition-body
-  [word]
-  (if (:show-definition word)
-    [:ul (map (fn [d] [:li d]) (:definitions word))]))
+  [definitions]
+  [:ul (map (fn [d] [:li d]) definitions)])
+
 
 (defn word-component
-  [word]
-  [:li
-   [:span {:on-click #(re-frame/dispatch [:word-clicked (:word word)])} (:word word)]
-   [:div (word-definition-body word)]])
-
-(defn words-component []
-  (let [all-words (re-frame/subscribe [:words])
-        search-input (re-frame/subscribe [:search-input])]
-    (fn []
-      [:div "All the Words!"
-       [:ul (map word-component
-                 (filter (partial matches-query? @search-input) @all-words))]])))
+  []
+  (let [expanded? (atom false)]
+    (fn [{:keys [word definitions synonyms]}]
+      [re-com/box
+       :attr {:on-click #(swap! expanded? not)}
+       :child [:div
+               [re-com/hyperlink-href
+                 :label word
+                 :href (str "#/word/" (string/lower-case word))]
+               (when @expanded?
+                 [word-definition-body definitions])]])))
 
 (defn search-words
   []
   (let [search-input (re-frame/subscribe [:search-input])]
     (fn []
       [re-com/input-text
+       :style {:margin-left "20px"
+               :margin-top "20px"}
        :change-on-blur? false
        :model @search-input
        :on-change #(re-frame/dispatch [:search-input-entered %])])))
 
+(defn words-component []
+  (let [all-words (re-frame/subscribe [:words])
+        search-input (re-frame/subscribe [:search-input])
+        filtered-words (filterv (partial matches-query? @search-input) @all-words)]
+    [re-com/v-box
+     :style {:border "1px solid blue"
+             :border-radius "4px"
+             :margin "20px"
+             :padding "10px"}
+     :gap "5px"
+     :children [[re-com/title :label "All the Words!" :level :level1]
+                (for [word filtered-words]
+                  ^{:key (:word word)} [word-component word])]]))
+
+;; links
+
+(defn link-to-home-page []
+  [re-com/hyperlink-href
+   :label "go to Home Page"
+   :href "#/"])
+
+(defn link-to-about-page []
+  [re-com/hyperlink-href
+   :label "go to About Page"
+   :href "#/about"])
 
 ;; home
 
@@ -51,15 +77,60 @@
        :label (str "Hello from " @name ". This is the Home Page.")
        :level :level1])))
 
-(defn link-to-about-page []
-  [re-com/hyperlink-href
-   :label "go to About Page"
-   :href "#/about"])
-
 (defn home-panel []
   [re-com/v-box
    :gap "1em"
-   :children [[home-title] [link-to-about-page]]])
+   :children [[home-title]
+              [link-to-about-page]
+              [search-words]
+              [words-component]]])
+
+;; word
+
+(defn wp-definition
+  [def-string]
+  [re-com/box :child def-string])
+
+(defn wp-definitions
+  [defs]
+  [re-com/v-box
+   :children (mapv wp-definition defs)
+   :gap "10px"
+   :margin "0px 0px 0px 20px"])
+
+(defn wp-synonym
+  [syn-string]
+  [re-com/hyperlink-href
+   :label syn-string
+   :href (str "#/word/" (string/lower-case syn-string))])
+
+(defn wp-synonyms
+  [synonyms]
+  [re-com/h-box
+   :children (mapv wp-synonym synonyms)
+   :gap "10px"
+   :margin "20px"])
+
+(defn wp-body [word]
+  (println word)
+  [re-com/v-box
+   :gap "10px"
+   :children [[wp-definitions (:definitions word)]
+              [wp-synonyms (:synonyms word)]]])
+
+(defn wp-title [word-string]
+  [re-com/title
+   :label (str "Entry for " word-string)
+   :level :level1])
+
+(defn word-panel []
+  (let [word (re-frame/subscribe [:word-panel-word])]
+    (fn []
+      [re-com/v-box
+       :gap "1em"
+       :children [[wp-title (:word @word)]
+                  [link-to-home-page]
+                  [wp-body @word]]])))
 
 
 ;; about
@@ -68,11 +139,6 @@
   [re-com/title
    :label "This is the About Page."
    :level :level1])
-
-(defn link-to-home-page []
-  [re-com/hyperlink-href
-   :label "go to Home Page"
-   :href "#/"])
 
 (defn about-panel []
   [re-com/v-box
@@ -85,6 +151,7 @@
 (defmulti panels identity)
 (defmethod panels :home-panel [] [home-panel])
 (defmethod panels :about-panel [] [about-panel])
+(defmethod panels :word-panel [] [word-panel])
 (defmethod panels :default [] [:div])
 
 (defn show-panel
@@ -96,4 +163,4 @@
     (fn []
       [re-com/v-box
        :height "100%"
-       :children [[panels @active-panel] [search-words] [words-component]]])))
+       :children [[panels @active-panel]]])))

@@ -24,6 +24,11 @@
   (defroute "/about" []
     (re-frame/dispatch [:set-active-panel :about-panel]))
 
+  (defroute "/word/:word-slug" [word-slug]
+    (println word-slug)
+    (re-frame/dispatch [:set-word-panel-word word-slug])
+    (re-frame/dispatch [:set-active-panel :word-panel]))
+
 
   ;; --------------------
   (hook-browser-navigation!))

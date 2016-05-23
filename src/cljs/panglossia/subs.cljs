@@ -13,11 +13,6 @@
    (reaction (:active-panel @db))))
 
 (re-frame/register-sub
- :words
- (fn [db _]
-   (reaction (:words @db))))
-
-(re-frame/register-sub
   :search-input
   (fn [db]
     (reaction (:search-input @db))))
@@ -26,3 +21,8 @@
  :words
  (fn [db _]
    (reaction (vals (:words @db)))))
+
+(re-frame/register-sub
+ :word-panel-word
+ (fn [db _]
+   (reaction (:word-panel-word @db))))
