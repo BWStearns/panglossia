@@ -69,9 +69,10 @@
              :margin "20px"
              :padding "10px"}
      :gap "5px"
-     :children [[re-com/title :label "All the Words!" :level :level1]
-                (for [word filtered-words]
-                  ^{:key (:word word)} [word-component word])]]))
+     :children [[re-com/title
+                 :label "All the Words Fit to Define (TM)"
+                 :level :level1]
+                (map (fn [word] ^{:key (:word word)} [word-component word]) filtered-words)]]))
 
 
 ;; home
