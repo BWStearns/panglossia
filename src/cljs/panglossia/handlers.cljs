@@ -34,6 +34,7 @@
              :definitions ["A place where people drink booze. The content of the drink is not important. Frequently used by programmers"]
              :synonyms ["Bar"]}}
       :search-input ""
+      :active-panel ""
       :word-panel-word ""
       :name "Panglossia")))
 
