@@ -29,6 +29,11 @@
     (re-frame/dispatch [:set-word-panel-word word-slug])
     (re-frame/dispatch [:set-active-panel :word-panel]))
 
+  (defroute "/word/:word-slug/edit" [word-slug]
+    (println word-slug)
+    (re-frame/dispatch [:set-edit-word word-slug])
+    (re-frame/dispatch [:set-active-panel :edit-word-panel]))
+
 
   ;; --------------------
   (hook-browser-navigation!))

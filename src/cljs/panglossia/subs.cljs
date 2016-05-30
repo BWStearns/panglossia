@@ -1,16 +1,16 @@
 (ns panglossia.subs
-    (:require-macros [reagent.ratom :refer [reaction]])
-    (:require [re-frame.core :as re-frame]))
+  (:require-macros [reagent.ratom :refer [reaction]])
+  (:require [re-frame.core :as re-frame]))
 
 (re-frame/register-sub
- :name
- (fn [db]
-   (reaction (:name @db))))
+  :name
+  (fn [db]
+    (reaction (:name @db))))
 
 (re-frame/register-sub
- :active-panel
- (fn [db _]
-   (reaction (:active-panel @db))))
+  :active-panel
+  (fn [db _]
+    (reaction (:active-panel @db))))
 
 (re-frame/register-sub
   :search-input
@@ -18,11 +18,19 @@
     (reaction (:search-input @db))))
 
 (re-frame/register-sub
- :words
- (fn [db _]
-   (reaction (vals (:words @db)))))
+  :words
+  (fn [db _]
+    (reaction (vals (:words @db)))))
 
 (re-frame/register-sub
- :word-panel-word
- (fn [db _]
-   (reaction (:word-panel-word @db))))
+  :word-panel-word
+  (fn [db _]
+    (reaction (:word-panel-word @db))))
+
+(re-frame/register-sub
+  :edit-word
+  (fn [db _]
+    (reaction
+      (merge
+        {:word "" :definitions "" :synonyms []}
+        (:edit-word @db)))))

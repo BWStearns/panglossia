@@ -98,18 +98,6 @@
   [def-string]
   [re-com/box :child def-string])
 
-(defn wp-definitions
-  [defs]
-  [re-com/v-box
-   :padding "10px"
-   :children [[re-com/title
-               :label "Definitions"
-               :level :level3]
-              [re-com/v-box
-               :children (mapv wp-definition defs)
-               :gap "10px"
-               :margin "0px 0px 0px 20px"]]])
-
 (defn wp-synonyms
   [synonyms]
   [re-com/v-box
@@ -122,8 +110,19 @@
                :gap "10px"
                :margin "20px"]]])
 
+(defn wp-definitions
+  [defs]
+  [re-com/v-box
+   :padding "10px"
+   :children [[re-com/title
+               :label "Definitions"
+               :level :level3]
+              [re-com/v-box
+               :children (mapv wp-definition defs)
+               :gap "10px"
+               :margin "0px 0px 0px 20px"]]])
+
 (defn wp-body [word]
-  (println word)
   [re-com/v-box
    :gap "10px"
    :children [[wp-definitions (:definitions word)]
@@ -143,6 +142,34 @@
                   [link-to-home-page]
                   [wp-body @word]]])))
 
+;; edit-word
+
+(defn word-definition-input [word]
+  (println (str "DAMMIT~!" word))
+  (println (str "Slug: " (string/lower-case (:word word))))
+  (let [initial-definition (first (:definitions word))
+        slug (string/lower-case (:word word))]
+    (fn []
+      [re-com/input-textarea
+       :change-on-blur? false
+       :model (or initial-definition "")
+       :on-change #(re-frame/dispatch [:word-updated slug (assoc word :definitions [%])])])))
+
+(defn ewp-title [word-string]
+  [re-com/title
+   :label (str "Edit entry for " word-string)
+   :level :level1])
+
+(defn edit-word-panel []
+  (let [word (re-frame/subscribe [:edit-word])]
+    (fn []
+      (println (str "FOO" word))
+      [re-com/v-box
+       :gap "1em"
+       :children [[ewp-title (:word @word)]
+                  [link-to-home-page]
+                  [word-definition-input @word]
+                  [wp-body @word]]])))
 
 ;; about
 
@@ -163,6 +190,7 @@
 (defmethod panels :home-panel [] [home-panel])
 (defmethod panels :about-panel [] [about-panel])
 (defmethod panels :word-panel [] [word-panel])
+(defmethod panels :edit-word-panel [] [edit-word-panel])
 (defmethod panels :default [] [:div])
 
 (defn show-panel

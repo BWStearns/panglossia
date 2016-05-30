@@ -1,42 +1,13 @@
 (ns panglossia.handlers
     (:require [re-frame.core :as re-frame]
-              [panglossia.db :as db]
+              [panglossia.db :as pgdb]
               [clojure.string :as string]))
-
 
 (re-frame/register-handler
   :initialize-db
-  (fn [db]
-    (assoc db :words
-      {:foo {:word "Foo"
-             :definitions ["A placeholder word used to indicate that the content is not important. Frequently used by programmers"]
-             :synonyms ["Bar"]}
-       :bar {:word "Bar"
-             :definitions ["A placeholder word used to indicate that the content is not important. Frequently used by programmers"
-                           "A place where people hold drinks. The content of the drink is not important. Frequently used by programmers"]
-             :synonyms ["Foo" "Pub"]}
-       :barrister {:word "Barrister"
-             :definitions ["A suit who passes the bar. The content of the suit may not be important. Their clients frequently frequent bars"]
-             :synonyms ["Lawyer"]}
-       :lawyer {:word "Lawyer"
-             :definitions ["A suit who attended law school. The content of the suit may not be important. Frequently sued by readers"]
-             :synonyms ["Barrister"]}
-       :judge {:word "Judge"
-             :definitions ["A lawyer with an IQ of 100"]
-             :synonyms ["Lawyer"]}
-       :senator {:word "Senator"
-             :definitions ["A lawyer with an IQ of 50"]
-             :synonyms ["Lawyer"]}
-       :publication {:word "Publication"
-             :definitions ["A place where people put words. The content of the words may not be important. Frequently read by readers"]
-             :synonyms [""]}
-       :pub {:word "Pub"
-             :definitions ["A place where people drink booze. The content of the drink is not important. Frequently used by programmers"]
-             :synonyms ["Bar"]}}
-      :search-input ""
-      :active-panel ""
-      :word-panel-word ""
-      :name "Panglossia")))
+  (println pgdb/default-db)
+  (fn [_ _]
+    pgdb/default-db))
 
 (re-frame/register-handler
  :set-active-panel
@@ -60,3 +31,23 @@
 (re-frame/register-handler
   :set-word-panel-word
   handle-set-word-panel-word)
+
+(defn handle-set-edit-word
+  [app-state [_ word-slug]]
+  (assoc-in app-state [:edit-word]
+            (get-in app-state [:words (keyword word-slug)])))
+
+(re-frame/register-handler
+  :set-edit-word
+  handle-set-edit-word)
+
+;; Needs to handle mutliple definitions. Whompwhomp.
+(defn handle-word-updated
+  [app-state [_ word-slug new-word-data]]
+  (println (str "inhandler " word-slug (:definitions new-word-data)))
+  (assoc-in app-state [:words (keyword word-slug)]
+            new-word-data))
+
+(re-frame/register-handler
+  :word-updated
+  handle-word-updated)
