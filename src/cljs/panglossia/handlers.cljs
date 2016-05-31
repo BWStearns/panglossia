@@ -51,3 +51,26 @@
 (re-frame/register-handler
   :word-updated
   handle-word-updated)
+
+
+;; HELPERS
+
+(defn search-collection
+  [app-state collection-key search-by term]
+  (filter
+    (fn [item]
+       (re-find (re-pattern (str "(?i)" term)) (get item search-by)))
+    (get app-state collection-key)))
+
+(defn search-words
+  [app-state term]
+  (search-collection app-state :words :word term))
+
+(defn search-definitions
+  [app-state term]
+  (search-collection app-state :definitions :entry term))
+
+(defn search-words-by-definitions
+  [app-state term]
+  (map :word-id (search-definitions app-state term))
+
