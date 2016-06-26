@@ -25,13 +25,6 @@
 
 ;; definition components
 
-(defn matches-query?
-  [search-input word]
-  (if (not search-input)
-    true
-    (boolean (re-find (re-pattern (string/lower-case search-input))
-                      (string/lower-case (:word word))))))
-
 (defn word-definition-body
   [definitions]
   [:ul (map (fn [d] [:li d]) definitions)])
@@ -40,13 +33,14 @@
 (defn word-component
   []
   (let [expanded? (atom false)]
-    (fn [{:keys [word definitions synonyms]}]
+    (fn [{:keys [word definitions synonym-ids]}]
       [re-com/box
        :attr {:on-click #(swap! expanded? not)}
        :child [:div
                [link-to-word word]
-               (when @expanded?
-                 [word-definition-body definitions])]])))
+                (when @expanded?
+                  [word-definition-body definitions])
+               ]])))
 
 (defn search-words
   []
@@ -60,9 +54,7 @@
        :on-change #(re-frame/dispatch [:search-input-entered %])])))
 
 (defn words-component []
-  (let [all-words (re-frame/subscribe [:words])
-        search-input (re-frame/subscribe [:search-input])
-        filtered-words (filterv (partial matches-query? @search-input) @all-words)]
+  (let [words (re-frame/subscribe [:search-result])]
     [re-com/v-box
      :style {:border "1px solid blue"
              :border-radius "4px"
@@ -72,7 +64,7 @@
      :children [[re-com/title
                  :label "All the Words Fit to Define (TM)"
                  :level :level1]
-                (map (fn [word] ^{:key (:word word)} [word-component word]) filtered-words)]]))
+                (map (fn [word] ^{:key (:word word)} [word-component word]) @words)]]))
 
 
 ;; home
@@ -145,8 +137,6 @@
 ;; edit-word
 
 (defn word-definition-input [word]
-  (println (str "DAMMIT~!" word))
-  (println (str "Slug: " (string/lower-case (:word word))))
   (let [initial-definition (first (:definitions word))
         slug (string/lower-case (:word word))]
     (fn []

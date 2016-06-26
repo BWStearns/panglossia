@@ -18,3 +18,6 @@
   (re-frame/dispatch-sync [:initialize-db])
   (routes/app-routes)
   (mount-root))
+
+(defn foo [x] (* x 5))
+(foo 10)

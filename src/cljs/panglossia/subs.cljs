@@ -23,6 +23,11 @@
     (reaction (vals (:words @db)))))
 
 (re-frame/register-sub
+  :search-result
+  (fn [db _]
+    (reaction (:search-result @db))))
+
+(re-frame/register-sub
   :word-panel-word
   (fn [db _]
     (reaction (:word-panel-word @db))))

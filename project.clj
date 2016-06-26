@@ -5,7 +5,7 @@
                  [re-frame "0.7.0"]
                  [re-com "0.8.3"]
                  [secretary "1.2.3"]]
-
+  
   :min-lein-version "2.5.3"
 
   :source-paths ["src/clj"]
@@ -49,7 +49,7 @@
 
   :profiles
   {:dev
-   {:plugins [[lein-figwheel "0.5.3"]
+   {:plugins [[lein-figwheel "0.5.4-3"]
               [lein-doo "0.1.6"]
               ]
     }})

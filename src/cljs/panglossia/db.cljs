@@ -55,6 +55,7 @@
                      :entry "A place where people drink booze. The content of the drink is not important. Frequently used by programmers"
                      :word-id 7})
    :search-input ""
+   :search-result []
    :active-panel ""
    :word-panel-word ""
    :edit-word ""
