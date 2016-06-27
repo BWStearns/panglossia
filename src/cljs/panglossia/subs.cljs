@@ -37,5 +37,5 @@
   (fn [db _]
     (reaction
       (merge
-        {:word "" :definitions "" :synonyms []}
+        {:word "" :definitions [] :synonyms []}
         (:edit-word @db)))))

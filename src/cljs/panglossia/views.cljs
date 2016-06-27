@@ -25,21 +25,26 @@
 
 ;; definition components
 
-(defn word-definition-body
-  [definitions]
-  [:ul (map (fn [d] [:li d]) definitions)])
+(defn definition-card
+  [definition]
+  [:div (:entry definition)])
 
+(defn definitions-list
+  [definitions]
+  [re-com/v-box
+   :children [(map definition-card definitions)]])
 
 (defn word-component
   []
   (let [expanded? (atom false)]
     (fn [{:keys [word definitions synonym-ids]}]
+      (println definitions)
       [re-com/box
        :attr {:on-click #(swap! expanded? not)}
        :child [:div
                [link-to-word word]
                 (when @expanded?
-                  [word-definition-body definitions])
+                  (definitions-list definitions))
                ]])))
 
 (defn search-words
@@ -55,6 +60,8 @@
 
 (defn words-component []
   (let [words (re-frame/subscribe [:search-result])]
+    (println "SHIT")
+    (println @words)
     [re-com/v-box
      :style {:border "1px solid blue"
              :border-radius "4px"
@@ -153,7 +160,6 @@
 (defn edit-word-panel []
   (let [word (re-frame/subscribe [:edit-word])]
     (fn []
-      (println (str "FOO" word))
       [re-com/v-box
        :gap "1em"
        :children [[ewp-title (:word @word)]

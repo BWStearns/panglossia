@@ -46,3 +46,6 @@ flycheck_*.el
 
 # projectiles files
 .projectile
+
+# nrepl
+.nrepl-port

@@ -20,6 +20,17 @@
   [db]
   (vals (:words db)))
 
+(defn words-by-keywords
+  [db]
+  (reduce-kv (fn [c k v]
+               (assoc c (keyword (string/lower-case(:word v))) v))
+             {}
+             (:words db)))
+
+(defn get-word-by-slug
+  [db word-slug]
+  (word-slug (words-by-keywords db)))
+
 (defn search-collection
   [db collection-key search-by term]
   (filter
@@ -29,7 +40,9 @@
 
 (defn search-words
   [db term]
-  (search-collection db :words :word term))
+  (let [results (search-collection db :words :word term)
+        defs-by-word-id (group-by :word-id (vals (:definitions db)))]
+    (map (fn [w] (assoc w :definitions (or (get defs-by-word-id (:id w)) {}))) results)))
 
 (defn search-definitions
   [db term]
@@ -51,6 +64,7 @@
 (defn handle-search-input-entered
   [db [_ search-input]]
   (assoc-in db [:search-input] search-input)
+  (println (assoc-in db [:search-result] (search-words db search-input)))
   (assoc-in db [:search-result] (search-words db search-input)))
 
 (re-frame/register-handler
@@ -60,7 +74,7 @@
 (defn handle-set-word-panel-word
   [db [_ word-slug]]
   (assoc-in db [:word-panel-word]
-            (get-in db [:words (keyword word-slug)])))
+            (get-word-by-slug db (keyword word-slug))))
 
 (re-frame/register-handler
   :set-word-panel-word
@@ -68,6 +82,7 @@
 
 (defn handle-set-edit-word
   [db [_ word-slug]]
+  (println (str "Editing word: " word-slug))
   (assoc-in db [:edit-word]
             (get-in db [:words (keyword word-slug)])))
 
